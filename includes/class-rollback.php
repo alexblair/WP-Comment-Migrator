@@ -61,6 +61,8 @@ class CMT_Rollback
 
         foreach (array_keys($affected_posts) as $pid) {
             wp_update_comment_count($pid);
+            // 清除文章缓存，确保评论计数等字段与数据库一致
+            clean_post_cache($pid);
         }
 
         return array(

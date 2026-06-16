@@ -98,6 +98,17 @@ class CMT_Migration
         }
         wp_update_comment_count($this->target_post_id);
 
+        // 清除已迁移评论的对象缓存，防止缓存插件返回旧的 comment_post_ID
+        // 导致评论编辑页面（wp-admin/comment.php）显示错误的所属文章
+        foreach ($all_ids as $cid) {
+            clean_comment_cache($cid);
+        }
+        // 清除来源文章和目标文章的缓存，保持 comment_count 等字段一致
+        foreach (array_keys($this->source_post_ids) as $source_id) {
+            clean_post_cache($source_id);
+        }
+        clean_post_cache($this->target_post_id);
+
         $migrated_set = array_flip($to_migrate);
         foreach ($comment_ids as $root_id) {
             if (isset($migrated_set[$root_id])) {
